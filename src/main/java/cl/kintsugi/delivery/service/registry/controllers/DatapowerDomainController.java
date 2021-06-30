@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
+@RequestMapping("/api/v1/delivery-service-registry")
 public class DatapowerDomainController {
 
     @Autowired

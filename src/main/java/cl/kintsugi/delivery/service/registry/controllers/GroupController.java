@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 @RestController
 @CrossOrigin(origins = "*")
+@RequestMapping("/api/v1/delivery-service-registry")
 public class GroupController {
 
     Logger logger = Logger.getLogger(GroupController.class.getName());
