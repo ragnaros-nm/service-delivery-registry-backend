@@ -6,13 +6,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
-import org.springframework.data.elasticsearch.config.EnableReactiveElasticsearchAuditing;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "cl.kintsugi.delivery.repository")
+@EnableElasticsearchRepositories(basePackages = "cl.kintsugi.delivery.service.repository")
 @ComponentScan(basePackages = {"cl.kintsugi.delivery.service"})
 public class ElasticsearchConfig {
 

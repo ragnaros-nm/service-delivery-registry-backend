@@ -2,6 +2,7 @@ package cl.kintsugi.delivery.service.registry.controllers;
 
 import cl.kintsugi.delivery.service.registry.models.entity.DatapowerDomain;
 import cl.kintsugi.delivery.service.registry.request.DatapowerDomainRequest;
+import cl.kintsugi.delivery.service.registry.response.DomainsResponse;
 import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.IDatapowerDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class DatapowerDomainController {
     private IDatapowerDomainService datapowerDomainService;
 
     @GetMapping("/datapower-domains")
-    public List<DatapowerDomain> getAllDatapowerDomains(){
+    public List<DomainsResponse> getAllDatapowerDomains(){
         return datapowerDomainService.findAllDatapowerDomains();
     }
 
