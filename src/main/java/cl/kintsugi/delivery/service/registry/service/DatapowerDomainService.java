@@ -51,10 +51,11 @@ public class DatapowerDomainService implements IDatapowerDomainService{
         try {
             SearchRequest searchRequest = new SearchRequest("datapower-domains");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.size(1000);
             String[] includeFields = new String[] {"uuid", "domainName","deleted","updateDate"};
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-            SearchHit[] searchHits = searchResponse.getHits().getHits();;
+            SearchHit[] searchHits = searchResponse.getHits().getHits();
             List<DomainsResponse> domains = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
