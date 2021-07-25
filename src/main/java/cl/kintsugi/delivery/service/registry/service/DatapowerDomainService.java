@@ -1,12 +1,11 @@
 package cl.kintsugi.delivery.service.registry.service;
 
 import cl.kintsugi.delivery.service.registry.models.entity.DatapowerDomain;
+import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IDatapowerDomainRepository;
 import cl.kintsugi.delivery.service.registry.request.DatapowerDomainRequest;
 import cl.kintsugi.delivery.service.registry.response.DomainsResponse;
 import cl.kintsugi.delivery.service.registry.response.Response;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.util.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -14,25 +13,17 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.translog.Translog;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
-import org.springframework.data.elasticsearch.core.query.SourceFilter;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
-
-import javax.xml.crypto.Data;
 
 @Service
 public class DatapowerDomainService implements IDatapowerDomainService{
@@ -45,6 +36,7 @@ public class DatapowerDomainService implements IDatapowerDomainService{
     private RestHighLevelClient client;
     @Autowired
     private Response response;
+    private java.lang.Object Object;
 
     @Override
     public List<DomainsResponse> findAllDatapowerDomains() {
@@ -52,16 +44,19 @@ public class DatapowerDomainService implements IDatapowerDomainService{
             SearchRequest searchRequest = new SearchRequest("datapower-domains");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(1000);
-            String[] includeFields = new String[] {"uuid", "domainName","deleted","updateDate"};
+            String[] includeFields = new String[] {"uuid", "domainName","connections","deleted","updateDate"};
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
             List<DomainsResponse> domains = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+                String sourceAsString = hit.getSourceAsString();
                 DomainsResponse domain = new DomainsResponse();
                 domain.setUuid((String) sourceAsMap.get("uuid"));
                 domain.setDomainName((String) sourceAsMap.get("domainName"));
+                domain.setConnections((List<Connections>) sourceAsMap.get("connections"));
+                System.out.println(hit.getSourceAsString());
                 domain.setDeleted((Boolean) sourceAsMap.get("deleted"));
                 domain.setUpdateDate((String) sourceAsMap.get("updateDate"));
                 domains.add(domain);
