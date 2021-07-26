@@ -164,8 +164,8 @@ public class DatapowerDomainService implements IDatapowerDomainService{
 
     public Response deleteDatapowerDomainByUuid(String uuid) {
         try{
-            DatapowerDomain domain = datapowerDomainRepository.findDatapowerDomainByUuid(uuid);
-            datapowerDomainRepository.delete(domain);
+           // DatapowerDomain domain = datapowerDomainRepository.findDatapowerDomainByUuid(uuid);
+            datapowerDomainRepository.deleteById(uuid);
             response.setStatus(200);
             response.setMessage("deleted");
             return response;

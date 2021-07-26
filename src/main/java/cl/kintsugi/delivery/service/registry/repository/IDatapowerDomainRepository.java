@@ -14,5 +14,4 @@ public interface IDatapowerDomainRepository extends ElasticsearchRepository<Data
     List<DatapowerDomain> findAll();
 
     DatapowerDomain findDatapowerDomainByUuid(String uuid);
-
 }
