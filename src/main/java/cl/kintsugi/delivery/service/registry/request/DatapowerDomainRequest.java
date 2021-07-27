@@ -32,8 +32,4 @@ public class DatapowerDomainRequest {
     private String updatedBy;
     @JsonProperty("additional_info")
     private String additionalInfo;
-
-    public boolean getDeleted(){
-        return this.deleted;
-    }
 }

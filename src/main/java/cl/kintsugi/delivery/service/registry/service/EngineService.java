@@ -114,21 +114,26 @@ public class EngineService implements IEngineService{
         }
     }
 
-    public Engine updateEngine(String uuid, EngineRequest engine){
+    public Engine updateEngine(String uuid, EngineRequest engineRequest){
         logger.info("UUID: " + uuid);
         Engine eng = engineRepository.findEngineByUuid(uuid);
         logger.info(eng.toString());
         try{
-            eng.setEngineName(engine.getEngineName());
-            eng.setVersion(engine.getVersion());
-            eng.setType(engine.getType());
-            eng.setConnections(engine.getConnections());
-            eng.setServers(engine.getServers());
-            eng.setVip(engine.getVip());
-            eng.setDeleted(engine.getDeleted());
+            eng.setEngineName(engineRequest.getEngineName());
+            eng.setVersion(engineRequest.getVersion());
+            eng.setType(engineRequest.getType());
+            eng.setConnections(engineRequest.getConnections());
+            eng.setServers(engineRequest.getServers());
+            eng.setVip(engineRequest.getVip());
+            if(engineRequest.isDeleted() && !eng.isDeleted()){
+                eng.setDeleteDate(formatter.getTimeStamp());
+            }
+            if(!engineRequest.isDeleted() && eng.isDeleted()){
+                eng.setDeleteDate(null);
+            }
             eng.setUpdateDate(formatter.getTimeStamp());
-            eng.setUpdatedBy(engine.getUpdatedBy());
-            eng.setAdditionalInfo(engine.getAdditionalInfo());
+            eng.setUpdatedBy(engineRequest.getUpdatedBy());
+            eng.setAdditionalInfo(engineRequest.getAdditionalInfo());
             logger.info(eng.toString());
             return engineRepository.save(eng);
         }

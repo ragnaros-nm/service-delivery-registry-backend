@@ -19,6 +19,7 @@ public class GroupRequest {
     @JsonProperty("references")
     private List<Reference> references;
     @JsonProperty("projects")
+    private boolean deleted;
     private List<String> projects;
     @JsonProperty("updated_by")
     private String updatedBy;

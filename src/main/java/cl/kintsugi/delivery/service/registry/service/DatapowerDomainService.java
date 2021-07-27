@@ -124,7 +124,12 @@ public class DatapowerDomainService implements IDatapowerDomainService{
             domain.setSslClientProfile(request.getSslClientProfiles());
             domain.setUpdatedBy(request.getUpdatedBy());
             domain.setUpdateDate(formatter.getTimeStamp());
-            domain.setDeleted(request.getDeleted());
+            if(request.isDeleted() && !domain.isDeleted()){
+                domain.setDeleteDate(formatter.getTimeStamp());
+            }
+            if(!request.isDeleted() && domain.isDeleted()){
+                domain.setDeleteDate(null);
+            }
             domain.setAdditionalInfo(request.getAdditionalInfo());
             return datapowerDomainRepository.save(domain);
 
@@ -164,7 +169,6 @@ public class DatapowerDomainService implements IDatapowerDomainService{
 
     public Response deleteDatapowerDomainByUuid(String uuid) {
         try{
-           // DatapowerDomain domain = datapowerDomainRepository.findDatapowerDomainByUuid(uuid);
             datapowerDomainRepository.deleteById(uuid);
             response.setStatus(200);
             response.setMessage("deleted");

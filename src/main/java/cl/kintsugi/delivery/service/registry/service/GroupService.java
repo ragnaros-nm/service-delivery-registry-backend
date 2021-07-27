@@ -2,6 +2,7 @@ package cl.kintsugi.delivery.service.registry.service;
 
 import cl.kintsugi.delivery.service.registry.controllers.GroupController;
 import cl.kintsugi.delivery.service.registry.models.entity.Group;
+import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.assertj.core.util.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -15,7 +16,6 @@ import cl.kintsugi.delivery.service.registry.repository.IGroupRepository;
 import cl.kintsugi.delivery.service.registry.request.GroupRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -24,12 +24,10 @@ import cl.kintsugi.delivery.service.registry.response.Response;
 public class GroupService implements IGroupService {
 
     Logger logger = Logger.getLogger(GroupController.class.getName());
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
-
+    @Autowired
+    private Formatter formatter;
     @Autowired
     private IGroupRepository groupRepository;
-
     @Autowired
     private RestHighLevelClient client;
 
@@ -67,8 +65,8 @@ public class GroupService implements IGroupService {
             group.setName(request.getName());
             group.setReferences(request.getReferences());
             group.setProjects(request.getProjects());
-            group.setCreateDate(actualDate.format(dateFormatter));
-            group.setUpdateDate(actualDate.format(dateFormatter));
+            group.setCreateDate(formatter.getTimeStamp());
+            group.setUpdateDate(formatter.getTimeStamp());
             group.setUpdatedBy(request.getUpdatedBy());
             group.setDeleted(false);
             group.setDeleteDate(null);
@@ -89,7 +87,13 @@ public class GroupService implements IGroupService {
         group.setName(request.getName());
         group.setReferences(request.getReferences());
         group.setProjects(request.getProjects());
-        group.setUpdateDate(actualDate.format(dateFormatter));
+        if(request.isDeleted() && !group.isDeleted()){
+            group.setDeleteDate(formatter.getTimeStamp());
+        }
+        if(!request.isDeleted() && group.isDeleted()){
+            group.setDeleteDate(null);
+        }
+        group.setUpdateDate(formatter.getTimeStamp());
         group.setUpdatedBy(request.getUpdatedBy());
         group.setAdditionalInfo(request.getAdditionalInfo());
 
@@ -106,7 +110,7 @@ public class GroupService implements IGroupService {
         }
         LocalDateTime actualDate = LocalDateTime.now();
         UpdateRequest request = new UpdateRequest("groups", uuid)
-                .doc("deleteDate", actualDate.format(dateFormatter),
+                .doc("deleteDate", formatter.getTimeStamp(),
                         "updatedBy",userName,
                         "deleted", true);
 
