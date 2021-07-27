@@ -27,25 +27,25 @@ public class AtomicController {
     }
 
     @PostMapping("/atomic")
-    public Atomic saveEngine(@RequestBody AtomicRequest atomicRequest){
+    public Atomic saveAtomic(@RequestBody AtomicRequest atomicRequest){
         System.out.println(atomicRequest.toString());
         return atomicService.saveAtomic(atomicRequest);
     }
 
    @PutMapping("/atomic/{uuid}")
-    public Atomic updateEngine(@PathVariable(name = "uuid") String uuid,
+    public Atomic updateAtomic(@PathVariable(name = "uuid") String uuid,
                                @RequestBody AtomicRequest atomicRequest){
         return atomicService.updateAtomic(uuid, atomicRequest);
     }
 
     @DeleteMapping("/atomic")
-    public Response disableEngine(@RequestParam(name = "uuid") String uuid,
+    public Response disableAtomic(@RequestParam(name = "uuid") String uuid,
                                   @RequestParam(name = "userName", required = false) String userName){
         return atomicService.disableAtomic(uuid, userName);
     }
 
     @DeleteMapping("/atomic/{uuid}")
-    public Response deleteEngine(@PathVariable(name = "uuid") String uuid){
+    public Response deleteAtomic(@PathVariable(name = "uuid") String uuid){
         return atomicService.deleteAtomicByUuid(uuid);
     }
 }
