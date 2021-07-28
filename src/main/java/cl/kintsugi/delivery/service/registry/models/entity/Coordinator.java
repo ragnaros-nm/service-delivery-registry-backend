@@ -10,13 +10,14 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+
 import java.util.List;
 
 @Getter
 @Setter
 @ToString
-@Document(indexName="tibco-atomics")
-public class Atomic {
+@Document(indexName="tibco-coordinators")
+public class Coordinator {
     @Id
     private String uuid;
     private String technology;
@@ -31,12 +32,9 @@ public class Atomic {
     private String url;
     private String request;
     private String response;
-    @JsonProperty("wsdl_path")
-    private String wsdlPath;
     @JsonProperty("deployed_in")
     private Environments deployedIn;
     private Environments availability;
-    private Backend backend;
     private boolean deleted;
     @JsonProperty("create_date")
     private String createDate;

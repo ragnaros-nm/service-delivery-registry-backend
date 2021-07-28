@@ -23,7 +23,7 @@ import cl.kintsugi.delivery.service.registry.response.Response;
 @Service
 public class GroupService implements IGroupService {
 
-    Logger logger = Logger.getLogger(GroupController.class.getName());
+    Logger logger = Logger.getLogger(GroupService.class.getName());
     @Autowired
     private Formatter formatter;
     @Autowired

@@ -22,7 +22,7 @@ public class AtomicController {
         return atomicService.getAllAtomics();
     }
     @GetMapping("/atomic/{uuid}")
-    public Atomic findEngineByUuid(@PathVariable(name = "uuid") String uuid){
+    public Atomic findAtomicByUuid(@PathVariable(name = "uuid") String uuid){
         return atomicService.findAtomicByUuid(uuid);
     }
 

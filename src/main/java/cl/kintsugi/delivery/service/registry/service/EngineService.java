@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 @Service
 public class EngineService implements IEngineService{
 
-    Logger logger = Logger.getLogger(SearchService.class.getName());
+    Logger logger = Logger.getLogger(EngineService.class.getName());
     @Autowired
     private RestHighLevelClient client;
 

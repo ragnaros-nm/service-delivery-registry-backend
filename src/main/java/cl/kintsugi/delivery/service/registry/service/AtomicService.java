@@ -1,7 +1,6 @@
 package cl.kintsugi.delivery.service.registry.service;
 
 import cl.kintsugi.delivery.service.registry.models.entity.Atomic;
-import cl.kintsugi.delivery.service.registry.models.entity.Engine;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IAtomicRepository;
 import cl.kintsugi.delivery.service.registry.request.AtomicRequest;
@@ -20,7 +19,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,7 @@ import java.util.logging.Logger;
 @Service
 public class AtomicService implements  IAtomicService{
 
-    Logger logger = Logger.getLogger(DatapowerDomainService.class.getName());
+    Logger logger = Logger.getLogger(AtomicService.class.getName());
     @Autowired
     private IAtomicRepository atomicRepository;
     @Autowired
@@ -47,7 +45,7 @@ public class AtomicService implements  IAtomicService{
             SearchRequest searchRequest = new SearchRequest("tibco-atomics");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(1000);
-            String[] includeFields = new String[] {"uuid","name","version","engineName","connections","type","url","deleted","updateDate"};
+            String[] includeFields = new String[] {"uuid","name","version","engineName","connections","type","url","deleted","updatedBy"};
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -64,7 +62,7 @@ public class AtomicService implements  IAtomicService{
                 atomic.setUrl((String) sourceAsMap.get("url"));
                 atomic.setConnections((List<Connections>) sourceAsMap.get("connections"));
                 atomic.setDeleted((Boolean) sourceAsMap.get("deleted"));
-                atomic.setUpdateDate((String) sourceAsMap.get("updateDate"));
+                atomic.setUpdateDate((String) sourceAsMap.get("updatedBy"));
                 atomics.add(atomic);
             }
             return atomics;
