@@ -50,7 +50,6 @@ public class CoordinatorService implements  ICoordinatorService{
             List<CoordinatorResponse> coordinators = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                String sourceAsString = hit.getSourceAsString();
                 CoordinatorResponse coordinator = new CoordinatorResponse();
                 coordinator.setUuid((String) sourceAsMap.get("uuid"));
                 coordinator.setName((String) sourceAsMap.get("name"));

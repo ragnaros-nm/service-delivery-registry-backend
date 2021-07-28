@@ -57,7 +57,6 @@ public class EngineService implements IEngineService{
             List<EnginesResponse> engines = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                String sourceAsString = hit.getSourceAsString();
                 EnginesResponse engine = new EnginesResponse();
                 engine.setUuid((String) sourceAsMap.get("uuid"));
                 engine.setType((String) sourceAsMap.get("type"));

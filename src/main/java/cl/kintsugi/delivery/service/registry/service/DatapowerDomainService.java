@@ -51,7 +51,6 @@ public class DatapowerDomainService implements IDatapowerDomainService{
             List<DomainsResponse> domains = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                String sourceAsString = hit.getSourceAsString();
                 DomainsResponse domain = new DomainsResponse();
                 domain.setUuid((String) sourceAsMap.get("uuid"));
                 domain.setDomainName((String) sourceAsMap.get("domainName"));

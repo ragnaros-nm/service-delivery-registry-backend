@@ -52,7 +52,6 @@ public class AtomicService implements  IAtomicService{
             List<AtomicResponse> atomics = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                String sourceAsString = hit.getSourceAsString();
                 AtomicResponse atomic = new AtomicResponse();
                 atomic.setUuid((String) sourceAsMap.get("uuid"));
                 atomic.setName((String) sourceAsMap.get("name"));

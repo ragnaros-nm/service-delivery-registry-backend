@@ -1,6 +1,5 @@
 package cl.kintsugi.delivery.service.registry.service;
 
-import cl.kintsugi.delivery.service.registry.controllers.GroupController;
 import cl.kintsugi.delivery.service.registry.models.entity.Group;
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.assertj.core.util.Lists;
@@ -80,7 +79,6 @@ public class GroupService implements IGroupService {
 
     @Override
     public Group updateGroup(GroupRequest request, String uuid) {
-        LocalDateTime actualDate = LocalDateTime.now();
         Group group = findGroupByUuid(uuid);
         group.setUuid(uuid);
         group.setKeyword(request.getKeyword());
