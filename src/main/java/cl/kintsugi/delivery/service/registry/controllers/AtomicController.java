@@ -17,10 +17,12 @@ public class AtomicController {
 
     @Autowired
     private IAtomicService atomicService;
+
     @GetMapping("/atomics")
     public List<AtomicResponse> getAllAtomics(){
         return atomicService.getAllAtomics();
     }
+
     @GetMapping("/atomic/{uuid}")
     public Atomic findAtomicByUuid(@PathVariable(name = "uuid") String uuid){
         return atomicService.findAtomicByUuid(uuid);

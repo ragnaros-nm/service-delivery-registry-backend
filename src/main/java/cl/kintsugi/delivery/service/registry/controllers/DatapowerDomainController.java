@@ -23,7 +23,7 @@ public class DatapowerDomainController {
     }
 
     @GetMapping("/datapower-domain/{uuid}")
-    public DatapowerDomain findDatapwoerDomainByUuid(@PathVariable(name = "uuid") String uuid){
+    public DatapowerDomain findDatapowerDomainByUuid(@PathVariable(name = "uuid") String uuid){
         return datapowerDomainService.findDatapowerDomainByUuid(uuid);
     }
 
