@@ -115,7 +115,7 @@ public class GroupService implements IGroupService {
         try{
             UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
             response.setStatus(200);
-            response.setMessage("deleted");
+            response.setMessage("disabled");
             return response;
         }
         catch(ElasticsearchException e){

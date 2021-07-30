@@ -147,7 +147,7 @@ public class B2hService implements IB2hService{
         try{
             UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
             response.setStatus(200);
-            response.setMessage("deleted");
+            response.setMessage("disabled");
             return response;
         }
         catch(ElasticsearchException e){

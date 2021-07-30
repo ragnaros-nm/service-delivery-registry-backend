@@ -73,7 +73,7 @@ public class DatapowerDomainService implements IDatapowerDomainService{
         return null;
     }
 
-    @Override
+
     public DatapowerDomain saveDatapowerDomain(DatapowerDomainRequest domain) {
 
         DatapowerDomain dp = new DatapowerDomain();
@@ -105,7 +105,6 @@ public class DatapowerDomainService implements IDatapowerDomainService{
         }
     }
 
-    @Override
     public DatapowerDomain updateDatapowerDomain(DatapowerDomainRequest request, String uuid) {
 
         try{
@@ -138,7 +137,7 @@ public class DatapowerDomainService implements IDatapowerDomainService{
         return null;
     }
 
-    @Override
+
     public Response disableDatapowerDomain(String uuid, String userName) {
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
         if(userName == null){
@@ -153,7 +152,7 @@ public class DatapowerDomainService implements IDatapowerDomainService{
         try{
             UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
             response.setStatus(200);
-            response.setMessage("deleted");
+            response.setMessage("disabled");
             return response;
         }
         catch(ElasticsearchException e){
