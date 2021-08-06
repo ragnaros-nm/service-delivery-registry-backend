@@ -100,6 +100,7 @@ public class EngineService implements IEngineService{
             eng.setType(engine.getType());
             eng.setServers(engine.getServers());
             eng.setVip(engine.getVip());
+            eng.setAvailability(engine.getAvailability());
             eng.setCreateDate(formatter.getTimeStamp());
             eng.setUpdateDate(formatter.getTimeStamp());
             eng.setUpdatedBy(engine.getUpdatedBy());
@@ -124,6 +125,7 @@ public class EngineService implements IEngineService{
             eng.setConnections(engineRequest.getConnections());
             eng.setServers(engineRequest.getServers());
             eng.setVip(engineRequest.getVip());
+            eng.setAvailability(engineRequest.getAvailability());
             if(engineRequest.isDeleted() && !eng.isDeleted()){
                 eng.setDeleteDate(formatter.getTimeStamp());
             }

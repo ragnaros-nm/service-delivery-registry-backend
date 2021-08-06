@@ -21,6 +21,7 @@ public class EngineRequest {
     private List<Connections> connections;
     private Servers servers;
     private Environments vip;
+    private Environments availability;
     private boolean deleted;
     @JsonProperty("updated_by")
     private String updatedBy;

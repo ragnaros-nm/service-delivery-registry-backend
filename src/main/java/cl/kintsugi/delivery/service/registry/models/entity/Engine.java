@@ -27,6 +27,7 @@ public class Engine {
     private List<Connections> connections;
     private Servers servers;
     private Environments vip;
+    private Environments availability;
     private boolean deleted;
     @JsonProperty("create_date")
     private String createDate;
