@@ -14,6 +14,11 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.Nullable;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -43,14 +48,29 @@ public class EngineService implements IEngineService{
     @Autowired
     private Response response;
 
-    @Override
-    public List<EnginesResponse> getAllEngines() {
+    public List<EnginesResponse> getAllEngines(String deleted) {
         logger.info("Servicio getAllEmployes");
+        logger.info("Availables: " + deleted);
+
         SearchRequest searchRequest = new SearchRequest("tibco-engines");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.size(1000);
-        String[] includeFields = new String[] {"uuid","type","version", "engineName","connections","deleted","updateDate"};
+        String[] includeFields = new String[] {"uuid","type","version","engineName","deleted","updateDate"};
         searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
+
+        if(deleted.equals("true")){
+            BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+            boolQueryBuilder.should(new MatchQueryBuilder("deleted", true));
+            searchSourceBuilder.query(boolQueryBuilder);
+
+
+        }
+        else if(deleted.equals("false")){
+            BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+            boolQueryBuilder.should(new MatchQueryBuilder("deleted", false));
+            searchSourceBuilder.query(boolQueryBuilder);
+        }
+
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -63,7 +83,6 @@ public class EngineService implements IEngineService{
                 engine.setVersion((String) sourceAsMap.get("version"));
                 engine.setDeleted((Boolean) sourceAsMap.get("deleted"));
                 engine.setEngineName((String) sourceAsMap.get("engineName"));
-                engine.setConnections((List<Connections>) sourceAsMap.get("connections"));
                 engine.setUpdateDate((String) sourceAsMap.get("updateDate"));
                 engines.add(engine);
             }

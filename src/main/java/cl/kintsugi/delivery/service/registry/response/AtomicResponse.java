@@ -24,4 +24,6 @@ public class AtomicResponse {
     private Boolean deleted;
     @JsonProperty("update_date")
     private String updateDate;
+    @JsonProperty("update_by")
+    private String updatedBy;
 }

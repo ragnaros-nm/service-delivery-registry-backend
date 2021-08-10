@@ -5,6 +5,7 @@ import cl.kintsugi.delivery.service.registry.request.EngineRequest;
 import cl.kintsugi.delivery.service.registry.response.EnginesResponse;
 import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.IEngineService;
+import org.elasticsearch.common.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -18,8 +19,9 @@ public class EngineController {
     private IEngineService engineService;
 
     @GetMapping("/engines")
-    public List<EnginesResponse> getAllEngines(){
-        return engineService.getAllEngines();
+    public List<EnginesResponse> getAllEngines(@RequestParam(name = "deleted", required = false)  String deleted){
+        deleted = deleted == null ? "null" : deleted;
+        return engineService.getAllEngines(deleted);
     }
 
     @GetMapping("/engine/{uuid}")

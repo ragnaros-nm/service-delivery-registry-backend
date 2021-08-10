@@ -4,12 +4,13 @@ import cl.kintsugi.delivery.service.registry.models.entity.Engine;
 import cl.kintsugi.delivery.service.registry.request.EngineRequest;
 import cl.kintsugi.delivery.service.registry.response.EnginesResponse;
 import cl.kintsugi.delivery.service.registry.response.Response;
+import org.elasticsearch.common.Nullable;
 
 import java.util.List;
 
 public interface IEngineService {
 
-    List<EnginesResponse> getAllEngines();
+    List<EnginesResponse> getAllEngines(String deleted);
 
     Engine findEngineByUuid(String uuid);
 
