@@ -16,8 +16,10 @@ public class AtomicResponse {
     private String name;
     @JsonProperty("engine_name")
     private String engineName;
-    private String type;
-    private String version;
+    @JsonProperty("engine_type")
+    private String engineType;
+    @JsonProperty("engine_version")
+    private String engineVersion;
     private String url;
     @JsonProperty("connections")
     private List<Connections> connections;

@@ -18,8 +18,10 @@ public class CoordinatorResponse {
     private String name;
     @JsonProperty("engine_name")
     private String engineName;
-    private String version;
-    private String type;
+    @JsonProperty("engine_version")
+    private String engineVersion;
+    @JsonProperty("engine_type")
+    private String engineType;
     private List<Connections> connections;
     private String url;
     private boolean deleted;

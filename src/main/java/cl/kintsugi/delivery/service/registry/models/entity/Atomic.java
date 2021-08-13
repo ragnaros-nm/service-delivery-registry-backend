@@ -23,8 +23,10 @@ public class Atomic {
     private String name;
     @JsonProperty("engine_name")
     private String engineName;
-    private String version;
-    private String type;
+    @JsonProperty("engine_version")
+    private String engineVersion;
+    @JsonProperty("engine_type")
+    private String engineType;
     private List<Connections> connections;
     private Servers servers;
     private Environments vip;
@@ -37,6 +39,8 @@ public class Atomic {
     private Environments deployedIn;
     private Environments availability;
     private Backend backend;
+    @JsonProperty("backend_type")
+    private String backendType;
     private boolean deleted;
     @JsonProperty("create_date")
     private String createDate;

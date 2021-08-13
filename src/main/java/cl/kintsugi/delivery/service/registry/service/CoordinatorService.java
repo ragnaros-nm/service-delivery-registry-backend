@@ -43,7 +43,7 @@ public class CoordinatorService implements  ICoordinatorService{
             SearchRequest searchRequest = new SearchRequest("tibco-coordinators");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(1000);
-            String[] includeFields = new String[] {"uuid","name","version","engineName","connections","type","url","deleted","updateDate"};
+            String[] includeFields = new String[] {"uuid","name","engineVersion","engineName","connections","engineType","url","deleted","updateDate"};
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -54,8 +54,8 @@ public class CoordinatorService implements  ICoordinatorService{
                 coordinator.setUuid((String) sourceAsMap.get("uuid"));
                 coordinator.setName((String) sourceAsMap.get("name"));
                 coordinator.setEngineName((String) sourceAsMap.get("engineName"));
-                coordinator.setType((String) sourceAsMap.get("type"));
-                coordinator.setVersion((String) sourceAsMap.get("version"));
+                coordinator.setEngineType((String) sourceAsMap.get("engineType"));
+                coordinator.setEngineVersion((String) sourceAsMap.get("engineVersion"));
                 coordinator.setUrl((String) sourceAsMap.get("url"));
                 coordinator.setConnections((List<Connections>) sourceAsMap.get("connections"));
                 coordinator.setDeleted((Boolean) sourceAsMap.get("deleted"));
@@ -81,8 +81,8 @@ public class CoordinatorService implements  ICoordinatorService{
             coordinator.setTechnology("Tibco Businesswork");
             coordinator.setName(coordinatorRequest.getName());
             coordinator.setEngineName(coordinatorRequest.getEngineName());
-            coordinator.setVersion(coordinatorRequest.getVersion());
-            coordinator.setType(coordinatorRequest.getType());
+            coordinator.setEngineVersion(coordinatorRequest.getEngineVersion());
+            coordinator.setEngineType(coordinatorRequest.getEngineType());
             coordinator.setConnections(coordinatorRequest.getConnections());
             coordinator.setServers(coordinatorRequest.getServers());
             coordinator.setVip(coordinatorRequest.getVip());
@@ -114,8 +114,8 @@ public class CoordinatorService implements  ICoordinatorService{
         try{
             coordinator.setName(coordinatorRequest.getName());
             coordinator.setEngineName(coordinatorRequest.getEngineName());
-            coordinator.setVersion(coordinatorRequest.getVersion());
-            coordinator.setType(coordinatorRequest.getType());
+            coordinator.setEngineVersion(coordinatorRequest.getEngineVersion());
+            coordinator.setEngineType(coordinatorRequest.getEngineType());
             coordinator.setConnections(coordinatorRequest.getConnections());
             coordinator.setServers(coordinatorRequest.getServers());
             coordinator.setVip(coordinatorRequest.getVip());

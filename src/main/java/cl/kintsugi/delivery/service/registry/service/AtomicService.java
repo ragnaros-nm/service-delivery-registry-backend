@@ -45,7 +45,7 @@ public class AtomicService implements  IAtomicService{
             SearchRequest searchRequest = new SearchRequest("tibco-atomics");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(1000);
-            String[] includeFields = new String[] {"uuid","name","version","engineName","connections","type","url","deleted","updateDate","updatedBy"};
+            String[] includeFields = new String[] {"uuid","name","engineVersion","engineName","connections","engineType","url","deleted","updateDate","updatedBy"};
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -56,8 +56,8 @@ public class AtomicService implements  IAtomicService{
                 atomic.setUuid((String) sourceAsMap.get("uuid"));
                 atomic.setName((String) sourceAsMap.get("name"));
                 atomic.setEngineName((String) sourceAsMap.get("engineName"));
-                atomic.setType((String) sourceAsMap.get("type"));
-                atomic.setVersion((String) sourceAsMap.get("version"));
+                atomic.setEngineType((String) sourceAsMap.get("engineType"));
+                atomic.setEngineVersion((String) sourceAsMap.get("engineVersion"));
                 atomic.setUrl((String) sourceAsMap.get("url"));
                 atomic.setConnections((List<Connections>) sourceAsMap.get("connections"));
                 atomic.setDeleted((Boolean) sourceAsMap.get("deleted"));
@@ -85,8 +85,8 @@ public class AtomicService implements  IAtomicService{
             atomic.setTechnology("Tibco Businesswork");
             atomic.setName(atomicRequest.getName());
             atomic.setEngineName(atomicRequest.getEngineName());
-            atomic.setVersion(atomicRequest.getVersion());
-            atomic.setType(atomicRequest.getType());
+            atomic.setEngineVersion(atomicRequest.getEngineVersion());
+            atomic.setEngineType(atomicRequest.getEngineType());
             atomic.setConnections(atomicRequest.getConnections());
             atomic.setServers(atomicRequest.getServers());
             atomic.setVip(atomicRequest.getVip());
@@ -97,6 +97,7 @@ public class AtomicService implements  IAtomicService{
             atomic.setAvailability(atomicRequest.getAvailability());
             atomic.setWsdlPath(atomicRequest.getWsdlPath());
             atomic.setBackend(atomicRequest.getBackend());
+            atomic.setBackendType(atomicRequest.getBackendType());
             atomic.setCreateDate(formatter.getTimeStamp());
             atomic.setUpdateDate(formatter.getTimeStamp());
             atomic.setUpdatedBy(atomicRequest.getUpdatedBy());
@@ -117,8 +118,8 @@ public class AtomicService implements  IAtomicService{
         try{
             atomic.setName(atomicRequest.getName());
             atomic.setEngineName(atomicRequest.getEngineName());
-            atomic.setVersion(atomicRequest.getVersion());
-            atomic.setType(atomicRequest.getType());
+            atomic.setEngineVersion(atomicRequest.getEngineVersion());
+            atomic.setEngineType(atomicRequest.getEngineType());
             atomic.setConnections(atomicRequest.getConnections());
             atomic.setServers(atomicRequest.getServers());
             atomic.setVip(atomicRequest.getVip());
@@ -129,6 +130,7 @@ public class AtomicService implements  IAtomicService{
             atomic.setAvailability(atomicRequest.getAvailability());
             atomic.setWsdlPath(atomicRequest.getWsdlPath());
             atomic.setBackend(atomicRequest.getBackend());
+            atomic.setBackendType(atomicRequest.getBackendType());
             atomic.setUpdateDate(formatter.getTimeStamp());
             atomic.setUpdatedBy(atomicRequest.getUpdatedBy());
             if(atomicRequest.isDeleted() && !atomic.isDeleted()){
