@@ -45,7 +45,7 @@ public class B2hService implements IB2hService{
             SearchRequest searchRequest = new SearchRequest("b2h");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(1000);
-            String[] includeFields = new String[] {"uuid","transaction","connections","url","deleted","updatedBy"};
+            String[] includeFields = new String[] {"uuid","transaction","connections","url","deleted","updatedBy","updateDate"};
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -58,7 +58,8 @@ public class B2hService implements IB2hService{
                 b2h.setConnections((List<Connections>) sourceAsMap.get("connections"));
                 b2h.setUrl((String) sourceAsMap.get("url"));
                 b2h.setDeleted((Boolean) sourceAsMap.get("deleted"));
-                b2h.setUpdateDate((String) sourceAsMap.get("updatedBy"));
+                b2h.setUpdateDate((String) sourceAsMap.get("updateDate"));
+                b2h.setUpdatedBy((String) sourceAsMap.get("updatedBy"));
                 b2hList.add(b2h);
             }
             return b2hList;

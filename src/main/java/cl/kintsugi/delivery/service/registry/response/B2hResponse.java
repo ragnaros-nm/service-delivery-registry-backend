@@ -18,4 +18,6 @@ public class B2hResponse {
     private boolean deleted;
     @JsonProperty("update_date")
     private String updateDate;
+    @JsonProperty("updated_by")
+    private String updatedBy;
 }

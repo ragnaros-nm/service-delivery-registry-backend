@@ -21,7 +21,7 @@ public class Datapower {
     @JsonProperty("domain_name")
     private String domainName;
     @JsonProperty("multi_protocol_gateway")
-    private List<String> multiProtocolsGateway;
+    private String multiProtocolsGateway;
     private List<Connections> connections;
     @JsonProperty("routing_domain_name")
     private String routingDomainName;
@@ -31,8 +31,8 @@ public class Datapower {
     private Environments vip;
     private Environments dns;
     @JsonProperty("deployed_in")
-    private EnvironmentStatus deployedIn;
-    private EnvironmentStatus availability;
+    private Environments deployedIn;
+    private Environments availability;
     @JsonProperty("service_catalog")
     private String serviceCatalog;
     private String url;
