@@ -4,14 +4,11 @@ import cl.kintsugi.delivery.service.registry.models.entity.Coordinator;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.ICoordinatorRepository;
 import cl.kintsugi.delivery.service.registry.request.CoordinatorRequest;
-import cl.kintsugi.delivery.service.registry.response.CoordinatorResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.rest.RestStatus;
@@ -35,10 +32,8 @@ public class CoordinatorService implements  ICoordinatorService{
     private RestHighLevelClient client;
     @Autowired
     private Formatter formatter;
-    @Autowired
-    private Response response;
 
-    public List<CoordinatorResponse> getAllCoordinators(){
+    public List<Coordinator> getAllCoordinators(){
         try {
             SearchRequest searchRequest = new SearchRequest("tibco-coordinators");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -47,10 +42,10 @@ public class CoordinatorService implements  ICoordinatorService{
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
-            List<CoordinatorResponse> coordinators = new ArrayList<>();
+            List<Coordinator> coordinators = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                CoordinatorResponse coordinator = new CoordinatorResponse();
+                Coordinator coordinator = new Coordinator();
                 coordinator.setUuid((String) sourceAsMap.get("uuid"));
                 coordinator.setName((String) sourceAsMap.get("name"));
                 coordinator.setEngineName((String) sourceAsMap.get("engineName"));
@@ -143,7 +138,7 @@ public class CoordinatorService implements  ICoordinatorService{
         }
     }
 
-    public Response disableCoordinator(String uuid, String userName){
+    public Boolean disableCoordinator(String uuid, String userName){
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
         if(userName == null){
             userName = "default";
@@ -154,10 +149,10 @@ public class CoordinatorService implements  ICoordinatorService{
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if(client.update(request, RequestOptions.DEFAULT).status().equals(RestStatus.OK))
+            	return true;
+            else return false;
+
         }
         catch(ElasticsearchException e){
             if (e.status() == RestStatus.CONFLICT) {
@@ -166,16 +161,17 @@ public class CoordinatorService implements  ICoordinatorService{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
-    public Response deleteCoordinatorByUuid(String uuid){
+    public Boolean deleteCoordinatorByUuid(String uuid){
         try{
-            coordinatorRespository.deleteById(uuid);
-            response.setStatus(200);
-            response.setMessage("deleted");
-            return response;
+            if (!coordinatorRespository.findCoordinatorByUuid(uuid).equals(null)) {
+            	coordinatorRespository.deleteById(uuid);
+            	return true;
+            }else
+            	return false;
         }catch (Exception e){}
-        return null;
+        return false;
     }
 }

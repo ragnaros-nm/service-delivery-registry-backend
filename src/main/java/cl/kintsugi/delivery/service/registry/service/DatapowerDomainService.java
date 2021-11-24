@@ -5,12 +5,10 @@ import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IDatapowerDomainRepository;
 import cl.kintsugi.delivery.service.registry.request.DatapowerDomainRequest;
 import cl.kintsugi.delivery.service.registry.response.DomainsResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.rest.RestStatus;
@@ -34,9 +32,6 @@ public class DatapowerDomainService implements IDatapowerDomainService{
     private Formatter formatter;
     @Autowired
     private RestHighLevelClient client;
-    @Autowired
-    private Response response;
-    private java.lang.Object Object;
 
     @Override
     public List<DomainsResponse> findAllDatapowerDomains() {
@@ -138,9 +133,9 @@ public class DatapowerDomainService implements IDatapowerDomainService{
     }
 
 
-    public Response disableDatapowerDomain(String uuid, String userName) {
+    public Boolean disableDatapowerDomain(String uuid, String userName) {
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
-        if(userName == null){
+        if(userName.equals(null)){
             userName = "default";
         }
         LocalDateTime actualDate = LocalDateTime.now();
@@ -150,28 +145,31 @@ public class DatapowerDomainService implements IDatapowerDomainService{
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if(client.update(request, RequestOptions.DEFAULT).status().equals(RestStatus.OK))
+            	return true;
+            else return false;
         }
         catch(ElasticsearchException e){
             if (e.status() == RestStatus.CONFLICT) {
                 System.out.println("Error");
+                return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        return null;
+        return false;
     }
 
-    public Response deleteDatapowerDomainByUuid(String uuid) {
+    public Boolean deleteDatapowerDomainByUuid(String uuid) {
         try{
-            datapowerDomainRepository.deleteById(uuid);
-            response.setStatus(200);
-            response.setMessage("deleted");
-            return response;
+        	if (datapowerDomainRepository.findDatapowerDomainByUuid(uuid).equals(null))
+        		return false;
+        	else {
+        		datapowerDomainRepository.deleteById(uuid);
+        		return true;
+        	}
         }catch (Exception e){}
-        return null;
+        return false;
     }
 }

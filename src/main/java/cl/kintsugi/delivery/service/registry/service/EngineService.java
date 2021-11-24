@@ -1,24 +1,17 @@
 package cl.kintsugi.delivery.service.registry.service;
 
 import cl.kintsugi.delivery.service.registry.models.entity.Engine;
-import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IEngineRepository;
 import cl.kintsugi.delivery.service.registry.request.EngineRequest;
-import cl.kintsugi.delivery.service.registry.response.EnginesResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.Nullable;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -45,39 +38,27 @@ public class EngineService implements IEngineService{
     @Autowired
     private Formatter formatter;
 
-    @Autowired
-    private Response response;
-
-    public List<EnginesResponse> getAllEngines(String deleted) {
+    public List<Engine> getAllEngines(Boolean deleted) {
         logger.info("Servicio getAllEmployes");
-        logger.info("Availables: " + deleted);
+        logger.info("Availables: " + deleted.toString());
 
         SearchRequest searchRequest = new SearchRequest("tibco-engines");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.size(1000);
         String[] includeFields = new String[] {"uuid","type","version","engineName","deleted","updateDate"};
         searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
-
-        if(deleted.equals("true")){
-            BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-            boolQueryBuilder.should(new MatchQueryBuilder("deleted", true));
-            searchSourceBuilder.query(boolQueryBuilder);
-
-
-        }
-        else if(deleted.equals("false")){
-            BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-            boolQueryBuilder.should(new MatchQueryBuilder("deleted", false));
-            searchSourceBuilder.query(boolQueryBuilder);
-        }
+        
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.should(new MatchQueryBuilder("deleted", deleted));
+        searchSourceBuilder.query(boolQueryBuilder);
 
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
-            List<EnginesResponse> engines = new ArrayList<>();
+            List<Engine> engines = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                EnginesResponse engine = new EnginesResponse();
+                Engine engine = new Engine();
                 engine.setUuid((String) sourceAsMap.get("uuid"));
                 engine.setType((String) sourceAsMap.get("type"));
                 engine.setVersion((String) sourceAsMap.get("version"));
@@ -163,21 +144,21 @@ public class EngineService implements IEngineService{
         }
     }
 
-    public Response disableEngine(String uuid, String userName) {
+    public Boolean disableEngine(String uuid, String userName) {
         logger.info("Eliminacion logica de documento con UUID: " + uuid + " por: " + userName);
         if(userName == null){
             userName = "default";
         }
         UpdateRequest request = new UpdateRequest("tibco-engines", uuid)
-                .doc("deleteDate",formatter.getTimeStamp() ,
-                        "updatedBy",userName,
+                .doc("deleteDate",formatter.getTimeStamp(),
+                		"updatedBy",userName,
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if(client.update(request, RequestOptions.DEFAULT).equals(RestStatus.OK))
+            	return true;
+            else return false;
+            
         }
         catch(ElasticsearchException e){
             if (e.status() == RestStatus.CONFLICT) {
@@ -186,17 +167,17 @@ public class EngineService implements IEngineService{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     //Eliminacion permanente
-    public Response deleteEngineByUuid(String uuid) {
+    public Boolean deleteEngineByUuid(String uuid) {
         try{
             logger.info("Eliminacion permanente...");
-            engineRepository.deleteById(uuid);
-            response.setStatus(200);
-            response.setMessage("deleted");
-            return response;
+            if (!engineRepository.findEngineByUuid(uuid).equals(null)) {
+            	engineRepository.deleteById(uuid);
+            	return true;
+            }else return false;
         }catch (Exception e){
             logger.info(e.getMessage());
             return null;

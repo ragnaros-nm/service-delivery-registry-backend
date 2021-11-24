@@ -4,14 +4,11 @@ import cl.kintsugi.delivery.service.registry.models.entity.Atomic;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IAtomicRepository;
 import cl.kintsugi.delivery.service.registry.request.AtomicRequest;
-import cl.kintsugi.delivery.service.registry.response.AtomicResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.rest.RestStatus;
@@ -36,11 +33,9 @@ public class AtomicService implements  IAtomicService{
     private RestHighLevelClient client;
     @Autowired
     private Formatter formatter;
-    @Autowired
-    private Response response;
 
     @Override
-    public List<AtomicResponse> getAllAtomics() {
+    public List<Atomic> getAllAtomics() {
         try {
             SearchRequest searchRequest = new SearchRequest("tibco-atomics");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -49,10 +44,10 @@ public class AtomicService implements  IAtomicService{
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
-            List<AtomicResponse> atomics = new ArrayList<>();
+            List<Atomic> atomics = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                AtomicResponse atomic = new AtomicResponse();
+                Atomic atomic = new Atomic();
                 atomic.setUuid((String) sourceAsMap.get("uuid"));
                 atomic.setName((String) sourceAsMap.get("name"));
                 atomic.setEngineName((String) sourceAsMap.get("engineName"));
@@ -74,7 +69,13 @@ public class AtomicService implements  IAtomicService{
 
     @Override
     public Atomic findAtomicByUuid(String uuid) {
-        return atomicRepository.findAtomicByUuid(uuid);
+    	try {
+    		return atomicRepository.findAtomicByUuid(uuid);
+    	}catch(Exception e) {
+    		logger.info(e.getMessage());
+    		Atomic atomic = new Atomic();
+            return atomic;
+    	}
     }
 
     public Atomic saveAtomic(AtomicRequest atomicRequest) {
@@ -150,21 +151,18 @@ public class AtomicService implements  IAtomicService{
         }
     }
 
-    public Response disableAtomic(String uuid, String userName){
+    public Boolean disableAtomic(String uuid, String userName){
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
-        if(userName == null){
-            userName = "default";
-        }
+
         UpdateRequest request = new UpdateRequest("tibco-atomics", uuid)
                 .doc("deleteDate",formatter.getTimeStamp() ,
                         "updatedBy",userName,
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if (client.update(request, RequestOptions.DEFAULT).equals(RestStatus.OK))
+            	return true;
+            else return false;
         }
         catch(ElasticsearchException e){
             if (e.status() == RestStatus.CONFLICT) {
@@ -173,16 +171,22 @@ public class AtomicService implements  IAtomicService{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
-    public Response deleteAtomicByUuid(String uuid){
+    public Boolean deleteAtomicByUuid(String uuid){
         try{
-            atomicRepository.deleteById(uuid);
-            response.setStatus(200);
-            response.setMessage("deleted");
-            return response;
-        }catch (Exception e){}
-        return null;
+            if (atomicRepository.findAtomicByUuid(uuid).equals(null))
+            	return false;
+            else {
+            	atomicRepository.deleteById(uuid);
+            	return true;
+            }
+           
+        }catch (Exception e){
+        	e.printStackTrace();
+        	return false;
+        }
+        
     }
 }

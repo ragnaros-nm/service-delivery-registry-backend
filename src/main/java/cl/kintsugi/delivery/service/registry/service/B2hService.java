@@ -4,14 +4,11 @@ import cl.kintsugi.delivery.service.registry.models.entity.B2h;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IB2hRepository;
 import cl.kintsugi.delivery.service.registry.request.B2hRequest;
-import cl.kintsugi.delivery.service.registry.response.B2hResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.rest.RestStatus;
@@ -36,10 +33,8 @@ public class B2hService implements IB2hService{
     private RestHighLevelClient client;
     @Autowired
     private Formatter formatter;
-    @Autowired
-    private Response response;
-
-    public List<B2hResponse> getAllB2hTransactions(){
+ 
+    public List<B2h> getAllB2hTransactions(){
         try {
 
             SearchRequest searchRequest = new SearchRequest("b2h");
@@ -49,10 +44,10 @@ public class B2hService implements IB2hService{
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
-            List<B2hResponse> b2hList = new ArrayList<>();
+            List<B2h> b2hList = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                B2hResponse b2h = new B2hResponse();
+                B2h b2h = new B2h();
                 b2h.setUuid((String) sourceAsMap.get("uuid"));
                 b2h.setTransaction((String) sourceAsMap.get("transaction"));
                 b2h.setConnections((List<Connections>) sourceAsMap.get("connections"));
@@ -65,7 +60,7 @@ public class B2hService implements IB2hService{
             return b2hList;
         }catch(Exception e){
             logger.info(e.getMessage());
-            return null;
+        	return null;
         }
     }
 
@@ -135,7 +130,7 @@ public class B2hService implements IB2hService{
 
     }
 
-    public Response disableB2hTransaction(String uuid, String userName){
+    public Boolean disableB2hTransaction(String uuid, String userName){
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
         if(userName == null){
             userName = "default";
@@ -146,28 +141,33 @@ public class B2hService implements IB2hService{
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if (client.update(request, RequestOptions.DEFAULT).status().equals(RestStatus.OK))
+            	return true;
+            else
+            	return false;
         }
         catch(ElasticsearchException e){
+        	//TODO implementar capa de errores aquí
             if (e.status() == RestStatus.CONFLICT) {
                 System.out.println("Error");
             }
         } catch (IOException e) {
+        	//TODO implementar capa de errores aquí
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
-    public Response deleteB2hTransactionByUuid(String uuid){
+    public Boolean deleteB2hTransactionByUuid(String uuid){
         try{
-            b2hRepository.deleteById(uuid);
-            response.setStatus(200);
-            response.setMessage("deleted");
-            return response;
-        }catch (Exception e){}
-        return null;
+        	if (!b2hRepository.findB2hByUuid(uuid).equals(null)) {
+        		b2hRepository.deleteById(uuid);
+        		return true;
+        	}else return false;
+     
+        }catch (Exception e){
+        	//TODO implementar capa de errores aquí
+        }
+        return false;
     }
 }

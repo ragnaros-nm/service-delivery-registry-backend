@@ -4,16 +4,14 @@ import cl.kintsugi.delivery.service.registry.models.entity.Datapower;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.repository.IDatapowerRepository;
 import cl.kintsugi.delivery.service.registry.request.DatapowerRequest;
-import cl.kintsugi.delivery.service.registry.response.DatapowerResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -35,11 +33,42 @@ public class DatapowerService implements IDatapowerService{
     private Formatter formatter;
     @Autowired
     private RestHighLevelClient client;
-    @Autowired
-    private Response response;
+    
+    public List<Datapower> findByDomainName(String domainName){
+    	try {
+	    	
+	    	SearchSourceBuilder SRB = new SearchSourceBuilder().size(1000);
+	    	SRB.query(QueryBuilders.matchQuery("domain_name", domainName));
+	    	SearchRequest SR = new SearchRequest()
+	    			.indices("datapower-services")
+	    			.source(SRB);
+	        
+	        SearchResponse searchResponse = client.search(SR, RequestOptions.DEFAULT);
+	        SearchHit[] searchHits = searchResponse.getHits().getHits();
+	        
+	        List<Datapower> dpList = new ArrayList<>();
+            for (SearchHit hit : searchHits) {
+                Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+                Datapower datapower = new Datapower();
+                datapower.setUuid(sourceAsMap.get("uuid").toString());
+                datapower.setName(sourceAsMap.get("name").toString());
+                datapower.setDomainName(sourceAsMap.get("domainName").toString());
+                datapower.setRoutingConnections((List<Connections>) sourceAsMap.get("routingConnections"));
+                datapower.setUrl(sourceAsMap.get("url").toString());
+                datapower.setFeatures((List<String>) sourceAsMap.get("features"));
+                datapower.setDeleted((Boolean) sourceAsMap.get("deleted"));
+                datapower.setUpdateDate(sourceAsMap.get("updateDate").toString());
+                dpList.add(datapower);
+            }
+            return dpList;
+    	}catch (Exception e) {
+    		return null;
+    	}
+    }
 
 
-    public List<DatapowerResponse> getAllDatapowerServices() {
+
+    public List<Datapower> getAllDatapowerServices() {
         try {
             SearchRequest searchRequest = new SearchRequest("datapower-services");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -48,10 +77,10 @@ public class DatapowerService implements IDatapowerService{
             searchRequest.source(searchSourceBuilder.fetchSource(includeFields, null));
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHit[] searchHits = searchResponse.getHits().getHits();
-            List<DatapowerResponse> datapowerList = new ArrayList<>();
+            List<Datapower> datapowerList = new ArrayList<>();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-                DatapowerResponse datapower = new DatapowerResponse();
+                Datapower datapower = new Datapower();
                 datapower.setUuid((String) sourceAsMap.get("uuid"));
                 datapower.setName((String) sourceAsMap.get("name"));
                 datapower.setDomainName((String) sourceAsMap.get("domainName"));
@@ -157,7 +186,7 @@ public class DatapowerService implements IDatapowerService{
         }
     }
 
-    public Response disableDatapowerService(String uuid, String userName) {
+    public Boolean disableDatapowerService(String uuid, String userName) {
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
         if(userName == null){
             userName = "default";
@@ -168,28 +197,31 @@ public class DatapowerService implements IDatapowerService{
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if(client.update(request, RequestOptions.DEFAULT).status().equals(RestStatus.OK))
+            	return true;
+            else return false;
         }
         catch(ElasticsearchException e){
             if (e.status() == RestStatus.CONFLICT) {
                 System.out.println("Error");
             }
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        return null;
     }
 
-    public Response deleteDatapowerServiceByUuid(String uuid) {
+    public Boolean deleteDatapowerServiceByUuid(String uuid) {
         try{
-            datapowerRepository.deleteById(uuid);
-            response.setStatus(200);
-            response.setMessage("deleted");
-            return response;
-        }catch (Exception e){}
-        return null;
+            if (!datapowerRepository.findById(uuid).isPresent()) {
+            		datapowerRepository.deleteById(uuid);
+            		return true;
+            }else return false;
+
+        }catch (Exception e){
+        	//TODO agregar aquí capa Exception
+        	return false;
+        }
     }
 }

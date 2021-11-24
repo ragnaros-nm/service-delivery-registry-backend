@@ -1,6 +1,5 @@
 package cl.kintsugi.delivery.service.registry.models.entity;
 
-import cl.kintsugi.delivery.service.registry.models.entity.commons.Backend;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Connections;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Environments;
 import cl.kintsugi.delivery.service.registry.models.entity.commons.Servers;

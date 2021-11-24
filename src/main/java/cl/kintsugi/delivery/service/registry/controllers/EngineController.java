@@ -2,11 +2,11 @@ package cl.kintsugi.delivery.service.registry.controllers;
 
 import cl.kintsugi.delivery.service.registry.models.entity.Engine;
 import cl.kintsugi.delivery.service.registry.request.EngineRequest;
-import cl.kintsugi.delivery.service.registry.response.EnginesResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
-import cl.kintsugi.delivery.service.registry.service.IEngineService;
-import org.elasticsearch.common.Nullable;
+import cl.kintsugi.delivery.service.registry.service.EngineService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -14,41 +14,52 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/v1/delivery-service-registry")
 public class EngineController {
+	
+	@Autowired
+    private EngineService engineService;
 
-    @Autowired
-    private IEngineService engineService;
-
-    @GetMapping("/engines")
-    public List<EnginesResponse> getAllEngines(@RequestParam(name = "deleted", required = false)  String deleted){
-        deleted = deleted == null ? "null" : deleted;
-        return engineService.getAllEngines(deleted);
+    @GetMapping("/tibco/engine")
+    public ResponseEntity<List<Engine>> getAllEngines(@RequestParam(name = "deleted", defaultValue = "false", required = false) Boolean deleted){
+        deleted = deleted.equals(null) ? false : deleted;
+        if (!engineService.getAllEngines(deleted).isEmpty())
+        	return ResponseEntity.status(HttpStatus.OK).body(engineService.getAllEngines(deleted));
+        else
+        	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @GetMapping("/engine/{uuid}")
-    public Engine findEngineByUuid(@PathVariable(name = "uuid") String uuid){
-        return engineService.findEngineByUuid(uuid);
+    @GetMapping("/tibco/engine/{uuid}")
+    public ResponseEntity<Engine> findEngineByUuid(@PathVariable(name = "uuid") String uuid){
+        if (!engineService.findEngineByUuid(uuid).equals(null))
+        	return ResponseEntity.ok(engineService.findEngineByUuid(uuid));
+        else
+        	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @PostMapping("/engine")
-    public Engine saveEngine(@RequestBody EngineRequest engine){
-        System.out.println(engine.toString());
-        return engineService.saveEngine(engine);
+    @PostMapping("/tibco-engine")
+    public ResponseEntity<Engine> saveEngine(@RequestBody EngineRequest engine){
+        return ResponseEntity.status(HttpStatus.CREATED).body(engineService.saveEngine(engine));
     }
 
-    @PutMapping("/engine/{uuid}")
-    public Engine updateEngine(@PathVariable(name = "uuid") String uuid,
+    @PutMapping("/tibco-engine/{uuid}")
+    public ResponseEntity<Engine> updateEngine(@PathVariable(name = "uuid") String uuid,
                                                  @RequestBody EngineRequest request){
-        return engineService.updateEngine(uuid, request);
+        return ResponseEntity.ok(engineService.updateEngine(uuid, request));
     }
 
-    @DeleteMapping("/engine")
-    public Response disableEngine(@RequestParam(name = "uuid") String uuid,
+    @PatchMapping("/tibco/engine")
+    public ResponseEntity<Boolean> disableEngine(@RequestParam(name = "uuid") String uuid,
                                   @RequestParam(name = "userName", required = false) String userName){
-        return engineService.disableEngine(uuid, userName);
+    	if (engineService.disableEngine(uuid, userName))
+    		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    	else
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
-
-    @DeleteMapping("/engine/{uuid}")
-    public Response deleteEngine(@PathVariable(name = "uuid") String uuid){
-        return engineService.deleteEngineByUuid(uuid);
+    
+    @DeleteMapping("/tibco/engine/{uuid}")
+    public ResponseEntity<Object> deleteEngine(@PathVariable(name = "uuid") String uuid){
+    	if (engineService.deleteEngineByUuid(uuid))
+    		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+    	else
+    	    return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
     }
 }

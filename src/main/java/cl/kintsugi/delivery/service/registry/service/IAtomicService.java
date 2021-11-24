@@ -2,14 +2,12 @@ package cl.kintsugi.delivery.service.registry.service;
 
 import cl.kintsugi.delivery.service.registry.models.entity.Atomic;
 import cl.kintsugi.delivery.service.registry.request.AtomicRequest;
-import cl.kintsugi.delivery.service.registry.response.AtomicResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
 
 import java.util.List;
 
 public interface IAtomicService {
 
-    List<AtomicResponse> getAllAtomics();
+    List<Atomic> getAllAtomics();
 
     Atomic findAtomicByUuid(String uuid);
 
@@ -17,7 +15,7 @@ public interface IAtomicService {
 
     Atomic updateAtomic(String uuid, AtomicRequest atomicRequest);
 
-    Response disableAtomic(String uuid, String userName);
+    Boolean disableAtomic(String uuid, String userName);
 
-    Response deleteAtomicByUuid(String uuid);
+    Boolean deleteAtomicByUuid(String uuid);
 }

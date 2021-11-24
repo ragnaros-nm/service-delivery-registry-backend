@@ -13,12 +13,14 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "cl.kintsugi.delivery.service.repository")
 @ComponentScan(basePackages = {"cl.kintsugi.delivery.service"})
+
 public class ElasticsearchConfig {
 
     @Bean
     public RestHighLevelClient client(){
         ClientConfiguration clientConfiguration = ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
+                //.withBasicAuth("", "") agregar
                 .build();
         return RestClients.create(clientConfiguration).rest();
     }
@@ -27,3 +29,4 @@ public class ElasticsearchConfig {
         return new ElasticsearchRestTemplate(client());
     }
 }
+

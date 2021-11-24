@@ -2,10 +2,13 @@ package cl.kintsugi.delivery.service.registry.controllers;
 
 import cl.kintsugi.delivery.service.registry.models.entity.Atomic;
 import cl.kintsugi.delivery.service.registry.request.AtomicRequest;
-import cl.kintsugi.delivery.service.registry.response.AtomicResponse;
-import cl.kintsugi.delivery.service.registry.response.Response;
-import cl.kintsugi.delivery.service.registry.service.IAtomicService;
+import cl.kintsugi.delivery.service.registry.service.AtomicService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -15,38 +18,51 @@ import java.util.List;
 public class AtomicController {
 
     @Autowired
-    private IAtomicService atomicService;
-
-    @GetMapping("/atomics")
-    public List<AtomicResponse> getAllAtomics(){
-        return atomicService.getAllAtomics();
+    private AtomicService atomicService;
+    
+    
+    @GetMapping("/tibco/atomics")
+    public ResponseEntity<List<Atomic>> getAllAtomics(){
+        if (!atomicService.getAllAtomics().isEmpty())
+        	return ResponseEntity.ok(atomicService.getAllAtomics());
+        else 
+        	return new ResponseEntity<List<Atomic>>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/atomic/{uuid}")
-    public Atomic findAtomicByUuid(@PathVariable(name = "uuid") String uuid){
-        return atomicService.findAtomicByUuid(uuid);
+    @GetMapping("/tibco/atomics/{uuid}")
+    public ResponseEntity<Atomic> findAtomicByUuid(@PathVariable(name = "uuid") String uuid){
+        if (atomicService.findAtomicByUuid(uuid) != null)
+        	return ResponseEntity.ok(atomicService.findAtomicByUuid(uuid));
+        else
+        	return new ResponseEntity<Atomic>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/atomic")
-    public Atomic saveAtomic(@RequestBody AtomicRequest atomicRequest){
-        System.out.println(atomicRequest.toString());
-        return atomicService.saveAtomic(atomicRequest);
+    @PostMapping("/tibco/atomics")
+    public ResponseEntity<Atomic> saveAtomic(@RequestBody AtomicRequest atomicRequest){
+        return new ResponseEntity<Atomic>(atomicService.saveAtomic(atomicRequest),HttpStatus.CREATED);
     }
 
-   @PutMapping("/atomic/{uuid}")
-    public Atomic updateAtomic(@PathVariable(name = "uuid") String uuid,
+   @PutMapping("/tibco/atomics/{uuid}")
+    public ResponseEntity<Atomic> updateAtomic(@PathVariable(name = "uuid") String uuid,
                                @RequestBody AtomicRequest atomicRequest){
-        return atomicService.updateAtomic(uuid, atomicRequest);
+	   
+        return ResponseEntity.ok(atomicService.updateAtomic(uuid, atomicRequest));
     }
 
-    @DeleteMapping("/atomic")
-    public Response disableAtomic(@RequestParam(name = "uuid") String uuid,
-                                  @RequestParam(name = "userName", required = false) String userName){
-        return atomicService.disableAtomic(uuid, userName);
+    @PatchMapping("/tibco/atomics")
+    public ResponseEntity<Object> disableAtomic(@RequestParam(name = "uuid") String uuid,
+                                  @RequestParam(name = "userName", required = false, defaultValue = "default") String userName){
+    	if (atomicService.disableAtomic(uuid,userName))
+    		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+    	else
+    	    return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/atomic/{uuid}")
-    public Response deleteAtomic(@PathVariable(name = "uuid") String uuid){
-        return atomicService.deleteAtomicByUuid(uuid);
+    @DeleteMapping("/tibco/atomics/{uuid}")
+    public ResponseEntity<Object> deleteAtomic(@PathVariable(name = "uuid") String uuid){
+        if (atomicService.deleteAtomicByUuid(uuid))
+        	return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+        else
+        	return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
     }
 }

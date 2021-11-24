@@ -5,7 +5,6 @@ import cl.kintsugi.delivery.service.registry.service.utils.Formatter;
 import org.assertj.core.util.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.rest.RestStatus;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
-import cl.kintsugi.delivery.service.registry.response.Response;
+
 @Service
 public class GroupService implements IGroupService {
 
@@ -29,9 +28,6 @@ public class GroupService implements IGroupService {
     private IGroupRepository groupRepository;
     @Autowired
     private RestHighLevelClient client;
-
-    @Autowired
-    private Response response;
 
     public List<Group> findAllGroups() {
         try {
@@ -100,7 +96,7 @@ public class GroupService implements IGroupService {
         return groupRepository.save(group);
     }
 
-    public Response deleteGroup(String uuid, String userName){
+    public Boolean deleteGroup(String uuid, String userName){
 
         logger.info("Eliminando documento de UUID: " + uuid + " por: " + userName);
         if(userName == null){
@@ -113,10 +109,10 @@ public class GroupService implements IGroupService {
                         "deleted", true);
 
         try{
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            response.setStatus(200);
-            response.setMessage("disabled");
-            return response;
+            if(client.update(request, RequestOptions.DEFAULT).status().equals(RestStatus.OK))
+            	return true;
+            else
+            	return false;
         }
         catch(ElasticsearchException e){
             if (e.status() == RestStatus.CONFLICT) {
@@ -125,6 +121,6 @@ public class GroupService implements IGroupService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 }
